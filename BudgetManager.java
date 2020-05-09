@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -29,7 +30,6 @@ public class BudgetManager extends Application {
     Scene scene0, scene1, scene2, scene3, scene4, scene5;
     BorderPane borderPane;
     private final Insets gridInset;
-    //VBox menuAddPurchase;
     ToggleGroup rbGroup;
     VBox leftMenu;
     VBox purchaseMenu;
@@ -99,8 +99,7 @@ public class BudgetManager extends Application {
         btnSubmitBalance.setOnAction(e -> 
                 {
                     backend.addIncome(Double.parseDouble(txtIncome.getText()));
-                    System.out.println(backend.getBalance());
-                    System.out.println("Income added!");
+                    txtIncome.setText("");
         });
         GridPane.setConstraints(lblIncome, 0, 1);
         GridPane.setConstraints(txtIncome, 1, 1);
@@ -124,7 +123,6 @@ public class BudgetManager extends Application {
         //Show balance
         gridBalance = new GridPane();
         gridBalance.setPadding(gridInset);
-        //Label lblBalance = new Label("Will implement balance crap here");
         Label lblBal = new Label("Balance: " + backend.getBalance());
         btnUpdateBal = new Button("Update Balance");
         btnUpdateBal.setOnAction(e -> 
@@ -136,7 +134,6 @@ public class BudgetManager extends Application {
         System.out.println(backend.getBalance());
         gridBalance.getChildren().add(lblBal);
         GridPane.setConstraints(lblBal, 0, 0);
-        //GridPane.setConstraints(btnUpdateBal, 0, 1);
         
         //Save
         gridSave = new GridPane();
@@ -159,7 +156,10 @@ public class BudgetManager extends Application {
         btnAddBalance.setOnAction(e -> 
                 {
                     borderPane.setCenter(gridAddBalance);
-                    borderPane.setRight(null);                    
+                    borderPane.setRight(null); 
+                    TextInputDialog txtID = new TextInputDialog(); 
+                    txtID.showAndWait();
+                    backend.addIncome(Double.parseDouble(txtID.getEditor().getText()));
         });
         
         Button btnAddPurchase = new Button("Add Purchase");
@@ -215,9 +215,14 @@ public class BudgetManager extends Application {
         rbClothes.setToggleGroup(rbGroup);
         rbEntertainment.setToggleGroup(rbGroup);
         rbOther.setToggleGroup(rbGroup);
-        
-        
+                
         purchaseMenu.setPadding(gridInset);
         purchaseMenu.getChildren().addAll(lblPurchaseType, rbFood, rbClothes, rbEntertainment, rbOther);
     }
+    
+    
+    
+    
+    
 }
+
