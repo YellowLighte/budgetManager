@@ -1,13 +1,14 @@
 
 package budgetmanager;
 
-//import java.awt.Label;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
@@ -41,6 +42,7 @@ public class BudgetManager extends Application {
     GridPane gridSave;
     GridPane gridLoad;
     Button btnUpdateBal;
+    Button btnUpdateTAPurchase;
     
     public static void main(String[] args) {
         launch(args);
@@ -53,7 +55,6 @@ public class BudgetManager extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         
-        //Test: create Budget_Backend object
         Budget_Backend backend = new Budget_Backend();
         
         //Setting up generic look of window
@@ -110,15 +111,51 @@ public class BudgetManager extends Application {
         //Add purchase
         gridAddPurchase = new GridPane();
         gridAddPurchase.setPadding(gridInset);
-        Label lblAddPurchase = new Label("Will implement add purchase crap here");
+        Label lblAddPurchase = new Label("Purchase name:");
+        TextField txtPurchaseName = new TextField();
+        Label lblPurchasePrice = new Label("Price:");
+        TextField txtPurchasePrice = new TextField();
+        Button btnAddPurchase = new Button("Submit");
+        btnAddPurchase.setOnAction(e -> 
+                {
+                    //Creates new Purchase object when button is clicked.
+                    double purchasePrice = Double.parseDouble(txtPurchasePrice.getText());
+                    Purchase purchase = new Purchase(txtPurchaseName.getText(),rbGroup.getSelectedToggle().toString(), purchasePrice);
+                    backend.addPurchase(purchase);
+                    System.out.println("Purchase created!");
+                    
+                    //Testing print line
+                    for (int i = 0; i < backend.purchaseObjectsList.size(); i++) {
+                        System.out.println(backend.purchaseObjectsList.get(i).print());
+                    }
+        });
         
-        gridAddPurchase.getChildren().addAll(lblAddPurchase); 
+        GridPane.setConstraints(lblAddPurchase, 0, 1);
+        GridPane.setConstraints(txtPurchaseName, 0, 2);
+        GridPane.setConstraints(lblPurchasePrice, 0, 3);
+        GridPane.setConstraints(txtPurchasePrice, 0, 4);
+        GridPane.setConstraints(btnAddPurchase, 0, 5);
+        
+        gridAddPurchase.getChildren().addAll(lblAddPurchase, txtPurchaseName, lblPurchasePrice, txtPurchasePrice, btnAddPurchase); 
         
         //Show purchases
         gridShowPurchase = new GridPane();
         gridShowPurchase.setPadding(gridInset);
-        Label lblShowPurchase = new Label("Will implement show purchase crap here");
-        gridShowPurchase.getChildren().add(lblShowPurchase);
+        TextArea taPurchases = new TextArea();
+        Label lblPurchaseSum = new Label("Balance: $");
+        GridPane.setConstraints(taPurchases, 0, 0);
+        GridPane.setConstraints(lblPurchaseSum, 0, 1);
+        //taPurchases.setText(backend.printPurchases());
+        //Label lblShowPurchase = new Label(backend.printPurchases());
+        btnUpdateTAPurchase = new Button("Update TA list");
+        btnUpdateTAPurchase.setOnAction(e -> 
+                {
+                    double purchaseSum = backend.sumOfPurchases(backend.purchaseObjectsList);
+                    taPurchases.setText(backend.printPurchases());
+                    lblPurchaseSum.setText("Balance: $" + purchaseSum);
+                    System.out.println();
+        });
+        gridShowPurchase.getChildren().addAll(taPurchases, lblPurchaseSum);
         
         //Show balance
         gridBalance = new GridPane();
@@ -153,13 +190,15 @@ public class BudgetManager extends Application {
         //Side menu
         leftMenu = new VBox(10);
         Button btnAddBalance = new Button("Add Balance");
-        btnAddBalance.setOnAction(e -> 
-                {
-                    borderPane.setCenter(gridAddBalance);
-                    borderPane.setRight(null); 
-                    TextInputDialog txtID = new TextInputDialog(); 
-                    txtID.showAndWait();
-                    backend.addIncome(Double.parseDouble(txtID.getEditor().getText()));
+        btnAddBalance.setOnAction(e
+                -> {
+            borderPane.setRight(null);
+            borderPane.setCenter(null);
+            TextInputDialog txtID = new TextInputDialog();
+            txtID.showAndWait();
+            if (!txtID.getEditor().getText().isEmpty()) {
+                backend.addIncome(Double.parseDouble(txtID.getEditor().getText()));
+            }
         });
         
         Button btnAddPurchase = new Button("Add Purchase");
@@ -174,6 +213,7 @@ public class BudgetManager extends Application {
                 {
                     borderPane.setCenter(gridShowPurchase);
                     borderPane.setRight(null);
+                    btnUpdateTAPurchase.fire();
         });
         
         Button btnBalance = new Button("Balance");
@@ -219,7 +259,6 @@ public class BudgetManager extends Application {
         purchaseMenu.setPadding(gridInset);
         purchaseMenu.getChildren().addAll(lblPurchaseType, rbFood, rbClothes, rbEntertainment, rbOther);
     }
-    
     
     
     

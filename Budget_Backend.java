@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Budget_Backend {
+    ArrayList<Purchase> purchaseObjectsList = new ArrayList<>();
     ArrayList<String> purchases = new ArrayList<>();
     ArrayList<Double> prices = new ArrayList<>();
     ArrayList<Double> incomeDeposits = new ArrayList<>();
@@ -20,7 +21,6 @@ public class Budget_Backend {
     ArrayList<String> purchaseTypes = new ArrayList<>();
     Double purchaseTotal;
     Double grandTotal = 0.0;
-    //Double incomeDeposit;
     Double incomeTotal = 0.0;
     Double balance = 0.0;
     File file = new File("Purchases.txt"); 
@@ -31,146 +31,41 @@ public class Budget_Backend {
         System.out.println("Income was added!");
     } 
     
-    public void addFoodPurchase() {
-        String purchaseName = "";
-        Double itemTotal = 0.0;
-        System.out.println("Enter food purchase name: ");
-        foodPurchases.add(purchaseName);
-        purchases.add(purchaseName);
-        System.out.println("Enter its price: ");
-        foodPrices.add(itemTotal);
-        prices.add(itemTotal);
-        grandTotal+= itemTotal;
-        System.out.println("Purchase was added!"); 
-        balance -= itemTotal;
-        purchaseTypes.add("Food");
-        System.out.println();
+    public void addPurchase(Purchase purchase) {
+        purchaseObjectsList.add(purchase);
+        this.balance -= purchase.getPrice();
+    }
+    
+    /*
+    //TODO: Figure out how to pull purchase lists from this. 
+    //It seems like a promising start.
+    */
+    public ArrayList<Purchase> purchaseListReturn() { 
+        return purchaseObjectsList;
     } 
+       
     
-    public void addClothesPurchase() {
-        String purchaseName = "";
-        Double itemTotal = 0.0;
-        System.out.println("Enter clothes purchase name: ");
-        clothesPurchases.add(purchaseName);
-        purchases.add(purchaseName);
-        System.out.println("Enter its price: ");
-        clothesPrices.add(itemTotal);
-        prices.add(itemTotal);
-        grandTotal+= itemTotal;
-        System.out.println("Purchase was added!"); 
-        balance -= itemTotal;
-        purchaseTypes.add("Clothes");
-        System.out.println();
-    }  // Works as intended. Don't touch.
+    //TODO: Get totalSum to display in BudgetManager
     
-    public void addEntertainmentPurchase() {
-        String purchaseName = "";
-        Double itemTotal = 0.0;
-        System.out.println("Enter entertainment purchase name: ");
-        entertainmentPurchases.add(purchaseName);
-        purchases.add(purchaseName);
-        System.out.println("Enter its price: ");
-        entertainmentPrices.add(itemTotal);
-        prices.add(itemTotal);
-        grandTotal+= itemTotal;
-        System.out.println("Purchase was added!"); 
-        balance -= itemTotal;
-        purchaseTypes.add("Entertainment");
-        System.out.println();
-        //addPurchaseMenu();
-    }  // Works as intended. Don't touch.
+    public String printPurchases() {
+        String str = "";
+        for (int i = 0; i < purchaseObjectsList.size(); i++) {
+            str += this.purchaseObjectsList.get(i).print() + "\n";
+        }
+        return str;
+    } //This is the one that works to show all purchases. Will have to create new method(s) to display different types. Also find way to show totalSum for the price totals.
+            
 
-    public void addOtherPurchase() {
-        String purchaseName = "";
-        Double itemTotal = 0.0;
-        otherPurchases.add(purchaseName);
-        purchases.add(purchaseName);
-        otherPrices.add(itemTotal);
-        prices.add(itemTotal);
-        grandTotal+= itemTotal;
-        balance -= itemTotal;
-        purchaseTypes.add("Other");
-    } // Works as intended. Don't touch.
-   
-    public void showPurchases() {
-        for (int i = 0; i < purchases.size(); i++) {
-            System.out.print(purchases.get(i) + " ");
-            System.out.println("$" + prices.get(i));
-        }
-        if (prices.isEmpty()) {
-            System.out.print("Purchase list is empty");
-            System.out.println();
-        } 
-        else {
-            System.out.println("Total sum: $" + grandTotal);
-            System.out.println();
-        }
-    }// Works as intended. Don't touch.
-    
-    public void showFoodPurchases() {
-        double foodPriceTotal = 0;
-        System.out.println("Food:");
-        for (int i = 0; i < foodPurchases.size(); i++) {
-            System.out.print(foodPurchases.get(i) + " ");
-            System.out.println("$" + foodPrices.get(i));
-            foodPriceTotal += foodPrices.get(i);
-        }
-        if (foodPrices.isEmpty()) {
-            System.out.println("Purchase list is empty!");
-            System.out.println();
-        } else {
-            System.out.println("Total sum: $" + foodPriceTotal);
-        }
-    }// Works as intended. Don't touch.
-    
-    public void showClothesPurchases() {
-        double clothesPriceTotal = 0;
-        System.out.println("Clothes:");
-        for (int i = 0; i < clothesPurchases.size(); i++) {
-            System.out.print(clothesPurchases.get(i) + " ");
-            System.out.println("$" + clothesPrices.get(i));
-            clothesPriceTotal += clothesPrices.get(i);
-        }
-        if (clothesPurchases.isEmpty()) {
-            System.out.println("Purchase list is empty!");
-            System.out.println();
-        } else {
-            System.out.println("Total sum: $" + clothesPriceTotal);
-        }
-    }// Works as intended. Don't touch.
-    
-    public void showEntertainmentPurchases() {
-        double entertainmentPriceTotal = 0;
-        System.out.println("Entertainment:");
-        for (int i = 0; i < entertainmentPurchases.size(); i++) {
-            System.out.print(entertainmentPurchases.get(i) + " ");
-            System.out.println("$" + entertainmentPrices.get(i));
-            entertainmentPriceTotal += entertainmentPrices.get(i);
-        }
-        if (entertainmentPurchases.isEmpty()) {
-            System.out.println("Purchase list is empty!");
-            System.out.println();
-        } else {
-            System.out.println("Total sum: $" + entertainmentPriceTotal);
-        }
-    }// Works as intended. Don't touch.
-    
-    public void showOtherPurchases() {
-        double otherPriceTotal = 0;
-        System.out.println("Other:");
-        for (int i = 0; i < otherPurchases.size(); i++) {
-            System.out.print(otherPurchases.get(i) + " ");
-            System.out.println("$" + otherPrices.get(i));
-            otherPriceTotal += otherPrices.get(i);
-        }
-        if (otherPurchases.isEmpty()) {
-            System.out.println("Purchase list is empty!");
-            System.out.println();
-        } else {
-            System.out.println("Total sum: $" + otherPriceTotal);
-        }
-    }// Works as intended. Don't touch.
-    
+   public double sumOfPurchases(ArrayList<Purchase> arr) {
+       double sum = 0;
+       
+       for (int i = 0; i < arr.size(); i++) {
+           sum += arr.get(i).getPrice();
+       }
+       
+       return sum;
+   } 
+       
     public double getBalance() {
         
         return this.balance;
@@ -190,7 +85,7 @@ public class Budget_Backend {
             System.out.println("An error has occurred saving purchases.");
             System.out.println(e.getMessage());
         }
-    }  // Works as intended. Don't touch.
+    }  // TODO: Get this to work with GUI
     
     public void loadPurchases() {
         try (Scanner fileScanner = new Scanner(file)) {
@@ -208,9 +103,9 @@ public class Budget_Backend {
             System.out.println("An error has occurred loading purchases.");
             System.out.println(e.getMessage());
         }
-    } // Works as intended. Don't touch.
+    } // TODO: Get this to work with GUI
     
-    public void populatePTLists(){
+    public void populatePTLists(){ 
         if (purchaseTypes.size() != 0) {
             for (int i = 0; i < purchaseTypes.size(); i++) {
                 if (purchaseTypes.get(i).equals("Food")) {
@@ -230,6 +125,5 @@ public class Budget_Backend {
         } else {
             System.out.println("No purchases found.");
         }
-    }// Works as intended. Don't touch.
-       
+    } //Might be obsolete with new Purchase object
 }
