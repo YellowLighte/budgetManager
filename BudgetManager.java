@@ -145,8 +145,6 @@ public class BudgetManager extends Application {
         Label lblPurchaseSum = new Label("Balance: $");
         GridPane.setConstraints(taPurchases, 0, 0);
         GridPane.setConstraints(lblPurchaseSum, 0, 1);
-        //taPurchases.setText(backend.printPurchases());
-        //Label lblShowPurchase = new Label(backend.printPurchases());
         btnUpdateTAPurchase = new Button("Update TA list");
         btnUpdateTAPurchase.setOnAction(e -> 
                 {
@@ -175,13 +173,13 @@ public class BudgetManager extends Application {
         //Save
         gridSave = new GridPane();
         gridSave.setPadding(gridInset);
-        Label lblSave = new Label("Will implement save crap here");
+        Label lblSave = new Label("Will implement save methods here");
         gridSave.getChildren().add(lblSave);
         
         //Load
         gridLoad = new GridPane();
         gridLoad.setPadding(gridInset);
-        Label lblLoad = new Label("Will implement load crap here");
+        Label lblLoad = new Label("Will implement load methods here");
         gridLoad.getChildren().add(lblLoad);
 
     }
