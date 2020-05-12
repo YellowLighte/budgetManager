@@ -36,16 +36,6 @@ public class Budget_Backend {
         this.balance -= purchase.getPrice();
     }
     
-    /*
-    //TODO: Figure out how to pull purchase lists from this. 
-    //It seems like a promising start.
-    */
-    public ArrayList<Purchase> purchaseListReturn() { 
-        return purchaseObjectsList;
-    } 
-       
-    
-    //TODO: Get totalSum to display in BudgetManager
     
     public String printPurchases() {
         String str = "";
@@ -54,7 +44,16 @@ public class Budget_Backend {
         }
         return str;
     } //This is the one that works to show all purchases. Will have to create new method(s) to display different types. Also find way to show totalSum for the price totals.
-            
+          
+    public String printTypePurchases(String type) {
+        String str = "";
+        for (int i = 0; i < purchaseObjectsList.size(); i++) {
+            if (purchaseObjectsList.get(i).print().contains(type)) {
+                str += this.purchaseObjectsList.get(i).print() + "\n";
+            }
+        }
+        return str;
+    }
 
    public double sumOfPurchases(ArrayList<Purchase> arr) {
        double sum = 0;
@@ -65,6 +64,18 @@ public class Budget_Backend {
        
        return sum;
    } 
+   
+   public double sumOfPurchasesType(ArrayList<Purchase> arr, String type) {
+       double sum = 0;
+       
+       for (int i = 0; i < arr.size(); i++) {
+           if (arr.get(i).getType().equals(type)) {
+               sum += arr.get(i).getPrice();
+           }
+       }
+       
+       return sum;
+   }
        
     public double getBalance() {
         

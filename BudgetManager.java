@@ -3,6 +3,8 @@ package budgetmanager;
 
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -11,13 +13,13 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -32,8 +34,10 @@ public class BudgetManager extends Application {
     BorderPane borderPane;
     private final Insets gridInset;
     ToggleGroup rbGroup;
+    ToggleGroup rbShowGroup;
     VBox leftMenu;
     VBox purchaseMenu;
+    VBox showPurchaseMenu;
     GridPane gridLanding;
     GridPane gridAddBalance;
     GridPane gridAddPurchase;
@@ -43,6 +47,8 @@ public class BudgetManager extends Application {
     GridPane gridLoad;
     Button btnUpdateBal;
     Button btnUpdateTAPurchase;
+    TextArea taPurchases;
+    Label lblPurchaseSum;
     
     public static void main(String[] args) {
         launch(args);
@@ -64,6 +70,7 @@ public class BudgetManager extends Application {
         populateGrids();       
         populateSideMenu();
         populateAddPurchaseMenu();
+        populateShowPurchaseMenu();
 
         //Main menu        
         borderPane = new BorderPane();
@@ -123,11 +130,9 @@ public class BudgetManager extends Application {
                     Purchase purchase = new Purchase(txtPurchaseName.getText(),rbGroup.getSelectedToggle().toString(), purchasePrice);
                     backend.addPurchase(purchase);
                     System.out.println("Purchase created!");
-                    
-                    //Testing print line
-                    for (int i = 0; i < backend.purchaseObjectsList.size(); i++) {
-                        System.out.println(backend.purchaseObjectsList.get(i).print());
-                    }
+                    txtPurchaseName.setText("");
+                    txtPurchasePrice.setText("");
+                                        
         });
         
         GridPane.setConstraints(lblAddPurchase, 0, 1);
@@ -141,17 +146,26 @@ public class BudgetManager extends Application {
         //Show purchases
         gridShowPurchase = new GridPane();
         gridShowPurchase.setPadding(gridInset);
-        TextArea taPurchases = new TextArea();
-        Label lblPurchaseSum = new Label("Balance: $");
+        taPurchases = new TextArea();
+        lblPurchaseSum = new Label("Total purchases: $");
         GridPane.setConstraints(taPurchases, 0, 0);
         GridPane.setConstraints(lblPurchaseSum, 0, 1);
         btnUpdateTAPurchase = new Button("Update TA list");
-        btnUpdateTAPurchase.setOnAction(e -> 
-                {
+        btnUpdateTAPurchase.setOnAction(e
+                -> {
+            //Test
+            if (!rbShowGroup.getSelectedToggle().toString().isEmpty()) {
+                //End test
+                if (backend.purchaseObjectsList.isEmpty()) {
+                    taPurchases.setText("No purchases found!");
+                    lblPurchaseSum.setText("Total purchases: $0.00");
+                } else {
                     double purchaseSum = backend.sumOfPurchases(backend.purchaseObjectsList);
                     taPurchases.setText(backend.printPurchases());
-                    lblPurchaseSum.setText("Balance: $" + purchaseSum);
+                    lblPurchaseSum.setText("Total purchases: $" + purchaseSum);
                     System.out.println();
+                }
+            }
         });
         gridShowPurchase.getChildren().addAll(taPurchases, lblPurchaseSum);
         
@@ -193,6 +207,7 @@ public class BudgetManager extends Application {
             borderPane.setRight(null);
             borderPane.setCenter(null);
             TextInputDialog txtID = new TextInputDialog();
+            txtID.setHeaderText("Add income:");
             txtID.showAndWait();
             if (!txtID.getEditor().getText().isEmpty()) {
                 backend.addIncome(Double.parseDouble(txtID.getEditor().getText()));
@@ -212,6 +227,7 @@ public class BudgetManager extends Application {
                     borderPane.setCenter(gridShowPurchase);
                     borderPane.setRight(null);
                     btnUpdateTAPurchase.fire();
+                    borderPane.setRight(showPurchaseMenu);
         });
         
         Button btnBalance = new Button("Balance");
@@ -258,7 +274,47 @@ public class BudgetManager extends Application {
         purchaseMenu.getChildren().addAll(lblPurchaseType, rbFood, rbClothes, rbEntertainment, rbOther);
     }
     
-    
+    public void populateShowPurchaseMenu() {
+        showPurchaseMenu = new VBox(8);
+        rbShowGroup = new ToggleGroup();
+        Label lblPurchaseType = new Label("Purchase type:");
+        RadioButton rbsAll = new RadioButton("All");
+        RadioButton rbsFood = new RadioButton("Food");
+        RadioButton rbsClothes = new RadioButton("Clothes");
+        RadioButton rbsEntertainment = new RadioButton("Entertainment");
+        RadioButton rbsOther = new RadioButton("Other");
+        rbsAll.setToggleGroup(rbShowGroup);
+        rbsFood.setToggleGroup(rbShowGroup);
+        rbsClothes.setToggleGroup(rbShowGroup);
+        rbsEntertainment.setToggleGroup(rbShowGroup);
+        rbsOther.setToggleGroup(rbShowGroup);
+        rbShowGroup.selectToggle(rbsAll);
+        rbShowGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>()  
+        { 
+            public void changed(ObservableValue<? extends Toggle> ob,  
+                                                    Toggle o, Toggle n) 
+            { 
+  
+                RadioButton rb = (RadioButton)rbShowGroup.getSelectedToggle(); 
+  
+                if (rb != null) { 
+                    if (rb.equals(rbsAll)) {
+                        taPurchases.setText(backend.printPurchases());
+                    }
+                    else {
+                    String s = rb.getText(); 
+  
+                    taPurchases.setText(backend.printTypePurchases(s));
+                    lblPurchaseSum.setText("Total purchases: $" + backend.sumOfPurchasesType(backend.purchaseObjectsList, s));
+                    }
+                } 
+                
+            } 
+        }); 
+        
+        showPurchaseMenu.setPadding(gridInset);
+        showPurchaseMenu.getChildren().addAll(lblPurchaseType, rbsAll, rbsFood, rbsClothes, rbsEntertainment, rbsOther);
+    }
     
     
 }
