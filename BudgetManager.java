@@ -28,9 +28,9 @@ import javafx.stage.Stage;
 
 public class BudgetManager extends Application {
     
-    Budget_Backend backend = new Budget_Backend();
+    Budget_Backend backend;
     Stage window;
-    Scene scene0, scene1, scene2, scene3, scene4, scene5;
+    Scene scene0;
     BorderPane borderPane;
     private final Insets gridInset;
     ToggleGroup rbGroup;
@@ -49,6 +49,8 @@ public class BudgetManager extends Application {
     Button btnUpdateTAPurchase;
     TextArea taPurchases;
     Label lblPurchaseSum;
+    Label lblLanding;
+    Chart chart = new Chart();
     
     public static void main(String[] args) {
         launch(args);
@@ -60,8 +62,8 @@ public class BudgetManager extends Application {
     
     @Override
     public void start(Stage primaryStage) throws Exception {
-        
-        Budget_Backend backend = new Budget_Backend();
+                
+        backend = new Budget_Backend();
         
         //Setting up generic look of window
         window = primaryStage;
@@ -75,7 +77,7 @@ public class BudgetManager extends Application {
         //Main menu        
         borderPane = new BorderPane();
         borderPane.setLeft(leftMenu);
-        borderPane.setCenter(gridLanding);
+        borderPane.setCenter(chart);
                 
         scene0 = new Scene(borderPane, 500, 350);
         
@@ -88,9 +90,7 @@ public class BudgetManager extends Application {
     public void populateGrids() {
         //Landing
         gridLanding = new GridPane();
-        Label lblLanding = new Label("This is the landing (main) page. Maybe "
-                + "eventually will have a chart that shows current balance"
-                + " and purchase totals.");
+        lblLanding = new Label("Balance: $" + backend.getBalance());
         gridLanding.setPadding(gridInset);
         gridLanding.setVgap(8);
         gridLanding.setBackground(new Background(new BackgroundFill(Color.LIGHTSTEELBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -177,7 +177,7 @@ public class BudgetManager extends Application {
         btnUpdateBal.setOnAction(e -> 
                 {
                     double bal = backend.getBalance();
-                    lblBal.setText("Balance: " + bal);
+                    lblLanding.setText("Balance: $" + bal);
                     
         });
         System.out.println(backend.getBalance());
@@ -199,19 +199,21 @@ public class BudgetManager extends Application {
     }
     
     public void populateSideMenu() {
+        
         //Side menu
         leftMenu = new VBox(10);
-        Button btnAddBalance = new Button("Add Balance");
-        btnAddBalance.setOnAction(e
+        Button btnAddIncome = new Button("Add Income");
+        btnAddIncome.setOnAction(e
                 -> {
             borderPane.setRight(null);
-            borderPane.setCenter(null);
+            borderPane.setLeft(leftMenu);
             TextInputDialog txtID = new TextInputDialog();
             txtID.setHeaderText("Add income:");
             txtID.showAndWait();
             if (!txtID.getEditor().getText().isEmpty()) {
                 backend.addIncome(Double.parseDouble(txtID.getEditor().getText()));
             }
+            btnUpdateBal.fire();
         });
         
         Button btnAddPurchase = new Button("Add Purchase");
@@ -230,10 +232,10 @@ public class BudgetManager extends Application {
                     borderPane.setRight(showPurchaseMenu);
         });
         
-        Button btnBalance = new Button("Balance");
-        btnBalance.setOnAction(e -> 
+        Button btnHome = new Button("Home");
+        btnHome.setOnAction(e -> 
                 {
-                    borderPane.setCenter(gridBalance);
+                    borderPane.setCenter(chart);
                     borderPane.setRight(null);
                     btnUpdateBal.fire();
         });
@@ -241,18 +243,23 @@ public class BudgetManager extends Application {
         Button btnSave = new Button("Save");
         btnSave.setOnAction(e -> 
                 {
-                    borderPane.setCenter(gridSave);
+                    borderPane.setCenter(chart);
                     borderPane.setRight(null);
+                    backend.savePurchases();
         });
         
         Button btnLoad = new Button("Load");
         btnLoad.setOnAction(e -> 
                 {
-                    borderPane.setCenter(gridLoad);
+                    //borderPane.setCenter(chart);
                     borderPane.setRight(null);
+                    backend.loadPurchases();
+                    //Test
+                    System.out.println(backend.sumOfPurchasesType(backend.purchaseObjectsList, "Clothes"));
+                            
         });
         
-        leftMenu.getChildren().addAll(btnAddBalance, btnAddPurchase, btnShowPurchases, btnBalance, btnSave, btnLoad);
+        leftMenu.getChildren().addAll(btnHome, btnAddIncome, btnAddPurchase, btnShowPurchases, btnSave, btnLoad);
         leftMenu.setPadding(new Insets(10,10,10,10));
     }
     
